@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: surveilx
+    runtime: docker
+    plan: starter  # $7/mo — 2GB RAM needed for AI models
+    region: singapore
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: EMAIL_SENDER
+        sync: false  # Set manually in Render dashboard
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_RECEIVER
+        sync: false
+      - key: TWILIO_ENABLED
+        value: "False"
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM_NUMBER
+        sync: false
+      - key: TWILIO_TO_NUMBER
+        sync: false
