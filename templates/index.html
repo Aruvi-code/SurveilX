@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SurveilX | Tactical Operations</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+
+        :root {
+            --bg-base: #050510;
+            --panel-bg: rgba(10, 15, 30, 0.85);
+            --text-main: #e0f7fa;
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff003c;
+            --neon-green: #39ff14;
+            --neon-blue: #022cdd;
+            --neon-yellow: #fcee0a;
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image:
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: var(--text-main);
+            font-family: var(--font-body);
+            margin: 0;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        h2,
+        h3 {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 15px 0;
+        }
+
+        .video-container {
+            background-color: var(--panel-bg);
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 15px rgba(2, 44, 221, 0.5), inset 0 0 20px rgba(0, 243, 255, 0.1);
+            border-radius: 4px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .video-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            border-top: 4px solid var(--neon-cyan);
+            border-left: 4px solid var(--neon-cyan);
+            width: 30px;
+            height: 30px;
+        }
+
+        .video-container::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            border-bottom: 4px solid var(--neon-cyan);
+            border-right: 4px solid var(--neon-cyan);
+            width: 30px;
+            height: 30px;
+        }
+
+        .video-container h2 {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 10px rgba(2, 44, 221, 0.3);
+            border-radius: 4px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .panel h3 {
+            color: var(--neon-cyan);
+            font-size: 1.1rem;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .threat-indicator {
+            padding: 15px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-family: var(--font-display);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        .Normal {
+            color: var(--neon-green);
+            border: 2px solid var(--neon-green);
+            background: rgba(57, 255, 20, 0.1);
+            text-shadow: 0 0 10px var(--neon-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+        }
+
+        .Suspicious {
+            color: var(--neon-yellow);
+            border: 2px solid var(--neon-yellow);
+            background: rgba(252, 238, 10, 0.1);
+            text-shadow: 0 0 10px var(--neon-yellow);
+            box-shadow: 0 0 10px rgba(252, 238, 10, 0.2);
+        }
+
+        .Critical {
+            color: var(--neon-pink);
+            border: 2px solid var(--neon-pink);
+            background: rgba(255, 0, 60, 0.15);
+            text-shadow: 0 0 15px var(--neon-pink);
+            animation: glitch 0.5s infinite, pulse-red 1s infinite alternate;
+        }
+
+        @keyframes pulse-red {
+            from {
+                box-shadow: 0 0 10px rgba(255, 0, 60, 0.3);
+            }
+
+            to {
+                box-shadow: 0 0 30px rgba(255, 0, 60, 0.8), inset 0 0 20px rgba(255, 0, 60, 0.5);
+            }
+        }
+
+        .alert-item {
+            background-color: rgba(255, 0, 60, 0.1);
+            border-left: 4px solid var(--neon-pink);
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            color: #fff;
+            text-shadow: 0 0 3px var(--neon-pink);
+        }
+
+        /* Tactical Button Styling */
+        .btn {
+            background: transparent;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 15px;
+            margin: 5px 0;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-audio {
+            color: var(--neon-cyan);
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+        .btn-audio:hover {
+            background: rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+
+        .btn-normal {
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+        }
+
+        .btn-normal:hover {
+            background: rgba(57, 255, 20, 0.1);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+        }
+
+        .btn-threat {
+            color: var(--neon-pink);
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.2);
+        }
+
+        .btn-threat:hover {
+            background: rgba(255, 0, 60, 0.1);
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.5);
+        }
+
+        .tamper-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .tamper-item {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            text-align: center;
+            font-size: 0.95rem;
+            font-family: var(--font-display);
+        }
+
+        .tamper-ok {
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        .tamper-alert {
+            border: 1px solid var(--neon-pink);
+            color: var(--neon-pink);
+            background: rgba(255, 0, 60, 0.2);
+            text-shadow: 0 0 5px var(--neon-pink);
+            animation: pulse-red 1s infinite alternate;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="video-container">
+        <!-- Neural Achievement Banner -->
+        <div
+            style="background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.2), transparent); border: 1px solid var(--neon-cyan); padding: 5px; text-align: center; margin-bottom: 15px; font-family: var(--font-display); font-size: 0.8rem; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 3px;">
+            🏆 Command Center Achievement: Multi-Modal Fusion Core Active
+        </div>
+
+        <h2>DEFENSE FEED ALPHA <span id="feed-status" style="font-size:0.8rem; color:var(--neon-green);">[LIVE]</span>
+        </h2>
+        <img class="video-feed" src="/video_feed" alt="Live Feed">
+    </div>
+
+    <div class="sidebar">
+        <div class="panel" id="audio-panel">
+            <h3>COMMAND AUDIO</h3>
+            <button id="init-audio-btn" class="btn btn-audio">Initialize Command Center Audio</button>
+        </div>
+
+        <div class="panel">
+            <h3>MISSION CONTROL INGESTION</h3>
+            <input type="file" id="scenario-upload" accept="video/mp4"
+                style="margin-bottom: 15px; width: 100%; color: var(--text-main); font-family: var(--font-body); background: rgba(0,0,0,0.3); padding: 5px; border: 1px solid var(--neon-blue);">
+            <button id="btn-upload" class="btn btn-audio">Upload & Analyze</button>
+        </div>
+
+        <div class="panel">
+            <h3>SCENARIO CONTROL</h3>
+            <button id="btn-webcam" class="btn btn-audio" style="margin-bottom: 10px; border-color: var(--neon-cyan); color: var(--neon-cyan);">🎥 Switch to Live Webcam</button>
+            <button id="btn-normal" class="btn btn-normal">Inject Scenario: Normal Patrol</button>
+            <button id="btn-threat" class="btn btn-threat">Inject Scenario: Critical Threat</button>
+        </div>
+
+        <div class="panel">
+            <h3>THREAT LEVEL</h3>
+            <div id="threat-indicator" class="threat-indicator Normal">SYSTEM BOOTING...</div>
+        </div>
+
+        <div class="panel">
+            <h3>ACTIVE ALERTS</h3>
+            <div id="alerts-container">
+                <p style="color: #4a5568; font-size: 1rem; font-style: italic;">No active alerts.</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>SENSOR HEALTH</h3>
+            <div class="tamper-grid">
+                <div id="tamper-blur" class="tamper-item tamper-ok">LENS CLEAR</div>
+                <div id="tamper-blackout" class="tamper-item tamper-ok">VISIBILITY OK</div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="alarm-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-facility-alarm-908.mp3" preload="auto"
+        loop></audio>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+
+</html>
