@@ -24,7 +24,7 @@ Our architecture is segmented into specialized engines that work in parallel to 
 
 ## 🛡️ Late-Fusion Logic
 
-Echo-Sight utilizes **Late-Fusion Logic** to significantly reduce false positives. Instead of triggering on a single sensor alert, the system correlates probabilities:
+SurveilX utilizes **Late-Fusion Logic** to significantly reduce false positives. Instead of triggering on a single sensor alert, the system correlates probabilities:
 - **Decision Matrix**: A `Vision Anomaly (0.6)` paired with an `Audio Anomaly (0.4)` aggregates to a high-confidence alert.
 - **Example**: If a camera experiences a "Blackout" while the Audio Engine detects "Screaming," the system immediately escalates to **CRITICAL**, triggers the AI Voice Alert, and locks down the forensic evidence.
 
@@ -54,13 +54,14 @@ Echo-Sight utilizes **Late-Fusion Logic** to significantly reduce false positive
 ### ⚡ Quick Start
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/Echo-Sight.git
-cd Echo-Sight
+git clone https://github.com/Aruvi-code/SurveilX.git
+cd SurveilX
 
 # Deployment-ready environment
 python -m venv venv
 source venv/bin/activate  # (.\venv\Scripts\activate on Windows)
 pip install -r requirements.txt
+copy .env.example .env    # then edit credentials / camera URL
 ```
 
 ### 🛰️ Launch Command
@@ -68,6 +69,34 @@ pip install -r requirements.txt
 python app.py
 ```
 Access the Tactical Dashboard at `http://localhost:5000`.
+
+Keep `DRY_RUN=true` until SMTP/Twilio credentials are verified. CRITICAL events then log email and phone actions without sending.
+
+### Live CCTV / RTSP
+Set in `.env`:
+```
+CAMERA_SOURCE=rtsp
+RTSP_URL=rtsp://user:pass@CAMERA_IP:554/Streaming/Channels/101
+CAMERA_ID=CAM-01
+CAMERA_FPS=15
+```
+Webcam: `CAMERA_SOURCE=webcam` and `CAMERA_INDEX=0`. File demo: `CAMERA_SOURCE=file` and `VIDEO_FILE=normal.mp4`.
+
+On the dashboard use **Live CCTV / RTSP (.env)** or **Switch to Live Webcam**. The capture thread reconnects if the RTSP session drops.
+
+### Email + phone alerts
+CRITICAL detections (after `CONFIRM_FRAMES` consecutive hits and `ALERT_COOLDOWN_SEC`) enqueue work off the video thread:
+- SMTP email with event type, timestamp, camera ID, confidence, and boxed snapshot
+- Twilio Voice TwiML: “Critical alert detected at camera X”
+
+Logs land in `outputs/alerts.csv` and `outputs/alerts.db`. Snapshots and an annotated demo video go to `outputs/`.
+
+### Paper evaluation
+```bash
+python scripts/evaluate.py
+pytest
+```
+Metrics and plots are written to `outputs/results/` (Precision, Recall, F1, mAP, confusion matrix, FPS, alert latency).
 
 ---
 
